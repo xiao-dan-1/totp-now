@@ -45,7 +45,7 @@ function start(config, subtle, clipboard) {
     const startMs = Math.floor(nowMs / periodMs) * periodMs;
     const secondsLeft = (startMs + periodMs - nowMs) / 1000;
     progress.value = secondsLeft;
-    remaining.textContent = `${Math.ceil(secondsLeft)} 秒`;
+    remaining.textContent = `剩余 ${Math.ceil(secondsLeft)} 秒`;
     timer.classList.toggle('is-expiring', secondsLeft <= expiryWarningSeconds);
     if (windowStartMs === startMs) return;
 

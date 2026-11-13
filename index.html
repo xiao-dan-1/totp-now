@@ -17,7 +17,7 @@
 
     <section class="card" aria-label="生成验证码">
       <label for="secret">Base32 密钥</label>
-      <input id="secret" type="password" autocomplete="off" autocapitalize="off"
+      <input id="secret" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
         spellcheck="false" maxlength="4096" placeholder="粘贴你的绑定密钥"
         aria-describedby="error privacy" disabled>
       <p id="error" class="error" role="status"></p>
@@ -37,7 +37,7 @@
     </section>
     <footer>
       <p id="privacy">密钥仅在当前页面计算，不会上传或保存。</p>
-      <span class="version">v0.1.0</span>
+      <span class="version">v0.1.1</span>
     </footer>
   </main>
 </body>
