@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <title>TOTP 计算器</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>TOTP 计算器</h1>
+      <p>输入绑定密钥，生成 6 位动态验证码。</p>
+    </header>
+
+    <section class="card" aria-label="生成验证码">
+      <label for="secret">Base32 密钥</label>
+      <div class="input-row">
+        <input id="secret" type="password" autocomplete="off" autocapitalize="off"
+          spellcheck="false" maxlength="4096" placeholder="粘贴你的绑定密钥"
+          aria-describedby="error privacy" disabled>
+        <button id="toggle" type="button" disabled>显示</button>
+        <button id="clear" type="button" disabled>清空</button>
+      </div>
+      <p id="error" class="error" role="status"></p>
+
+      <div class="result">
+        <div>
+          <span class="label" id="code-label">动态验证码</span>
+          <output id="code" class="code-empty" aria-labelledby="code-label" aria-live="off">等待输入密钥</output>
+        </div>
+        <button id="copy" class="primary" type="button" disabled>复制</button>
+      </div>
+      <div class="timer">
+        <progress id="progress" aria-label="当前验证码剩余时间" max="30" value="0"></progress>
+        <span id="remaining">—</span>
+      </div>
+      <p id="feedback" class="feedback" role="status"></p>
+    </section>
+    <p id="privacy" class="privacy">密钥仅在当前页面计算，不会上传或保存。</p>
+  </main>
+</body>
+</html>
