@@ -18,6 +18,8 @@ python3 -m http.server 8000 --bind 127.0.0.1
 
 项目无需构建或业务后端。部署时，用 HTTPS 静态托管 `index.html`、`styles.css` 和 `src/`，并保留它们的相对路径。
 
+每次发布页面改动时，更新 `index.html` 页脚中的版本号，部署后可在页面底部核对。
+
 ## 项目结构
 
 - `index.html`、`styles.css` — 页面结构和样式
