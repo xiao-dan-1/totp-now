@@ -2,8 +2,6 @@ import { expiryWarningSeconds, loadConfig } from './config.js';
 import { decodeBase32, generateTotp } from './totp.js';
 
 const secret = document.getElementById('secret');
-const toggle = document.getElementById('toggle');
-const clear = document.getElementById('clear');
 const copy = document.getElementById('copy');
 const code = document.getElementById('code');
 const progress = document.getElementById('progress');
@@ -102,23 +100,12 @@ function start(config, subtle, clipboard) {
     }
   }
 
-  function setVisible(visible) {
-    secret.type = visible ? 'text' : 'password';
-    toggle.textContent = visible ? '隐藏' : '显示';
-  }
-
   function clearSecret() {
     secret.value = '';
-    setVisible(false);
     resetResult();
   }
 
   secret.addEventListener('input', updateSecret);
-  toggle.addEventListener('click', () => setVisible(secret.type === 'password'));
-  clear.addEventListener('click', () => {
-    clearSecret();
-    secret.focus();
-  });
   copy.addEventListener('click', async () => {
     void refresh();
     if (!currentCode) {
@@ -151,8 +138,6 @@ function start(config, subtle, clipboard) {
   progress.max = config.periodSeconds;
   clearSecret();
   secret.disabled = false;
-  toggle.disabled = false;
-  clear.disabled = false;
 }
 
 try {

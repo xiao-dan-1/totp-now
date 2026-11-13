@@ -17,13 +17,9 @@
 
     <section class="card" aria-label="生成验证码">
       <label for="secret">Base32 密钥</label>
-      <div class="input-row">
-        <input id="secret" type="password" autocomplete="off" autocapitalize="off"
-          spellcheck="false" maxlength="4096" placeholder="粘贴你的绑定密钥"
-          aria-describedby="error privacy" disabled>
-        <button id="toggle" type="button" disabled>显示</button>
-        <button id="clear" type="button" disabled>清空</button>
-      </div>
+      <input id="secret" type="password" autocomplete="off" autocapitalize="off"
+        spellcheck="false" maxlength="4096" placeholder="粘贴你的绑定密钥"
+        aria-describedby="error privacy" disabled>
       <p id="error" class="error" role="status"></p>
 
       <div class="result">
