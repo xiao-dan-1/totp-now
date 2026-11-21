@@ -2,10 +2,11 @@ import { expiryWarningSeconds, loadConfig } from './config.js';
 import { decodeBase32, generateTotp } from './totp.js';
 
 const secret = document.getElementById('secret');
+const clearButton = document.getElementById('clear');
 const copy = document.getElementById('copy');
 const code = document.getElementById('code');
 const progress = document.getElementById('progress');
-const timer = progress.parentElement;
+const readout = progress.closest('.readout');
 const remaining = document.getElementById('remaining');
 const error = document.getElementById('error');
 const feedback = document.getElementById('feedback');
@@ -16,11 +17,17 @@ function start(config, subtle, clipboard) {
   let revision = 0;
   let windowStartMs = null;
   let currentCode = '';
+  let hasGeneratedCode = false;
 
-  function clearCode(placeholder = '等待输入密钥') {
+  function showFeedback(message, visible = false) {
+    feedback.classList.toggle('visually-hidden', !visible);
+    feedback.textContent = message;
+  }
+
+  function clearCode(placeholder = '') {
     currentCode = '';
     code.textContent = placeholder;
-    code.classList.add('code-empty');
+    code.classList.toggle('code-pending', placeholder !== '');
     copy.textContent = '复制';
     copy.disabled = true;
   }
@@ -29,13 +36,15 @@ function start(config, subtle, clipboard) {
     revision += 1;
     key = null;
     windowStartMs = null;
+    hasGeneratedCode = false;
     error.textContent = '';
-    feedback.textContent = '';
+    showFeedback('', true);
+    clearButton.disabled = secret.value.length === 0;
     secret.removeAttribute('aria-invalid');
     clearCode();
     progress.value = 0;
-    remaining.textContent = '—';
-    timer.classList.remove('is-expiring');
+    remaining.textContent = '';
+    readout.classList.remove('is-expiring');
   }
 
   async function refresh() {
@@ -46,12 +55,12 @@ function start(config, subtle, clipboard) {
     const secondsLeft = (startMs + periodMs - nowMs) / 1000;
     progress.value = secondsLeft;
     remaining.textContent = `剩余 ${Math.ceil(secondsLeft)} 秒`;
-    timer.classList.toggle('is-expiring', secondsLeft <= expiryWarningSeconds);
+    readout.classList.toggle('is-expiring', secondsLeft <= expiryWarningSeconds);
     if (windowStartMs === startMs) return;
 
     windowStartMs = startMs;
-    clearCode('正在更新');
-    feedback.textContent = '';
+    clearCode(hasGeneratedCode ? '正在更新…' : '正在生成…');
+    showFeedback('', true);
     const activeRevision = revision;
     try {
       const result = await generateTotp(subtle, key, nowMs, config);
@@ -62,8 +71,12 @@ function start(config, subtle, clipboard) {
       }
       currentCode = result;
       code.textContent = `${result.slice(0, 3)} ${result.slice(3)}`;
-      code.classList.remove('code-empty');
+      code.classList.remove('code-pending');
       copy.disabled = false;
+      if (!hasGeneratedCode) {
+        showFeedback('验证码已生成，可复制。');
+        hasGeneratedCode = true;
+      }
     } catch {
       if (revision !== activeRevision || windowStartMs !== startMs) return;
       resetResult();
@@ -85,6 +98,7 @@ function start(config, subtle, clipboard) {
     }
 
     const activeRevision = revision;
+    clearCode('正在生成…');
     try {
       const importedKey = await subtle.importKey(
         'raw', bytes, { name: 'HMAC', hash: config.hash }, false, ['sign'],
@@ -94,6 +108,7 @@ function start(config, subtle, clipboard) {
       void refresh();
     } catch {
       if (revision !== activeRevision) return;
+      resetResult();
       error.textContent = '无法读取密钥，请重新输入。';
     } finally {
       bytes.fill(0);
@@ -106,11 +121,15 @@ function start(config, subtle, clipboard) {
   }
 
   secret.addEventListener('input', updateSecret);
+  clearButton.addEventListener('click', () => {
+    clearSecret();
+    secret.focus();
+    showFeedback('密钥已清空。');
+  });
   copy.addEventListener('click', async () => {
     void refresh();
     if (!currentCode) {
-      feedback.classList.remove('visually-hidden');
-      feedback.textContent = '验证码正在更新，请重试。';
+      showFeedback('验证码正在更新，请重试。', true);
       return;
     }
 
@@ -125,8 +144,7 @@ function start(config, subtle, clipboard) {
     if (copiedRevision !== revision || copiedWindowMs !== windowStartMs) return;
     const copied = message === '已复制';
     copy.textContent = copied ? message : '复制';
-    feedback.textContent = message;
-    feedback.classList.toggle('visually-hidden', copied);
+    showFeedback(message, !copied);
   });
 
   document.addEventListener('visibilitychange', () => {
