@@ -28,6 +28,7 @@ body {
 main { width: min(100%, 32.5rem); }
 h1 {
   margin: 0;
+  text-align: center;
   font-size: clamp(1.875rem, 6vw, 2.5rem);
   line-height: 1.25;
   letter-spacing: -.025em;
